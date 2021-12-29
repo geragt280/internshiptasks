@@ -11,6 +11,7 @@ import ChatScreen from './newComponents/ChatScreen';
 import ProfileScreen from './newComponents/ProfileScreen';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import styles from './cssFolder/cssApp';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const black = '#0D0D0D';
 const golden = '#F7933D';
@@ -101,35 +102,37 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Welcome"
-          component={WelcomeScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          component={LoginScreen}
-          options={{
-            headerStyle: {
-              backgroundColor: '#F7933D',
-            },
-            headerTitleStyle: {
-              fontWeight: 'bold',
-              alignSelf: 'center',
-            },
-            headerTintColor: '#0D0D0D',
-            title: 'zoros             ',
-          }}
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeTabs}
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Welcome"
+            component={WelcomeScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            component={LoginScreen}
+            options={{
+              headerStyle: {
+                backgroundColor: '#F7933D',
+              },
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                alignSelf: 'center',
+              },
+              headerTintColor: '#0D0D0D',
+              title: 'zoros             ',
+            }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={HomeTabs}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

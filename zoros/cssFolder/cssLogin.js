@@ -4,6 +4,7 @@ import { color } from "react-native-reanimated";
 const black = '#0D0D0D';
 const golden = '#F7933D';
 const check = '#3b5998';
+const facebookBlue = '#166FE5'
 
 export default StyleSheet.create({
     all: {
@@ -34,15 +35,15 @@ export default StyleSheet.create({
     textInput:{
         backgroundColor:golden,
         color:black,
-        fontSize:30,
-        width:350,
-        borderRadius:100,
-        padding:30,
-        height:90,
+        fontSize:20,
+        width:270,
+        borderRadius:10,
+        paddingHorizontal:25,
+        height:60,
         margin:5
     },
     middleContainer:{
-        marginTop:50,
+        marginTop:100,
         padding:20,
         flexDirection:'column',
         justifyContent:'space-evenly',
@@ -55,32 +56,32 @@ export default StyleSheet.create({
         fontWeight:'bold'
     },
     loginButton: {
-        width:75,
-        height:75,
+        width:50,
+        height:50,
         alignItems:'center',
         justifyContent:'center',
-        margin:0,
-        padding:10,
+        margin:10,
         borderRadius:50, 
         backgroundColor: golden,
-        elevation:3,
     },
     facebookButtonText:{
         color:'#fff',
         fontWeight:'bold', 
-        margin:0,
+        backgroundColor: 'rgba(52, 52, 52, 0)',
+        marginHorizontal:0,
         fontSize:15,
-        elevation:3,
+        elevation:10,
         borderRadius:20
     },
     facebookButton:{
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:golden,
+        backgroundColor:facebookBlue,
         flexDirection:'row',
-        padding:10,
+        paddingHorizontal:10,
+        paddingVertical:5,
         marginTop:10,
         marginBottom:50,
-        borderRadius:20
+        borderRadius:10
     }
 })

@@ -10,6 +10,7 @@ import {
   GraphRequestManager,
   LoginManager,
 } from 'react-native-fbsdk';
+import { CommonActions } from '@react-navigation/native';
 
 const iconFontStyles = `@font-face {
     src: url(${iconFont});
@@ -69,7 +70,15 @@ export default function LoginScreen( {navigation} ) {
   };
 
   function gotoHome(){
-      navigation.navigate('Home')
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 1,
+          routes: [
+            { name: 'Home' },
+          ],
+        })
+      )
+
   }
 
   return (
@@ -82,16 +91,17 @@ export default function LoginScreen( {navigation} ) {
         <TextInput
           style={cssLogin.textInput}
           placeholder={'Password'}
-          keyboardType="visible-password"
+          textContentType={'password'}
+          secureTextEntry={true}
         />
       </View>
 
       <View style={cssLogin.middleContainer}>
-        <TouchableOpacity style={cssLogin.loginButton}>
+        <TouchableOpacity style={cssLogin.loginButton}  onPress={ () => gotoHome() }>
           <Icon name="arrow-right-bold" style={cssLogin.buttonLoginText} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={cssLogin.facebookButton} onPress={ () => gotoHome() }>
+        <TouchableOpacity style={cssLogin.facebookButton}>
           <Icon name="facebook" size={30} color="#fff" style={{margin: 5}} />
           <Text style={cssLogin.facebookButtonText}>facebook</Text>
         </TouchableOpacity>

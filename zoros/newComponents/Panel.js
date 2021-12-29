@@ -38,6 +38,7 @@ export default class Panel extends Component {
   }
 
   componentDidMount() {
+    // console.log("component loaded.")
     setInterval(() => {
       this.setState({
         songname: this.props.songname,
@@ -45,7 +46,8 @@ export default class Panel extends Component {
         price: this.props.pricedetails,
         picuri: this.props.songUriDetails,
       });
-    }, 1000);
+      console.log('current values coming', this.state.songname, this.state.singername,this.state.price);
+    }, 1000); 
   }
 
   playandpause() {

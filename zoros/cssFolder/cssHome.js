@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions } from 'react-native';
 import {color} from 'react-native-reanimated';
 
 const black = '#0D0D0D';
@@ -7,16 +7,30 @@ const white = '#fff';
 const width= '100%';
 const gray = 'gray';
 const searchbarBackgroundColor = '#252525';
+const windowHeight = Dimensions.get('window').height;
 
 export default StyleSheet.create({
   all: {
     backgroundColor: black,
     flex: 1,
   },
+  barStyle: {
+    backgroundColor: black
+  },
+  headerRight: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginTop: 5,
+  },
+  scrollView: {
+    flexGrow: 1,
+  },
   cartIconBadgeStyle: {
     position: 'absolute',
     top: 0,
     right: 0,
+    fontWeight:'bold',
+    borderColor:golden,
     backgroundColor: '#F7933D',
     borderRadius: 50,
   },
@@ -46,12 +60,6 @@ export default StyleSheet.create({
     backgroundColor: black,
     alignSelf: 'stretch',
     position: 'relative',
-  },
-  button: {
-    backgroundColor: 'black',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginTop: 15,
   },
   buttonText: {
     color: white,
@@ -85,10 +93,10 @@ export default StyleSheet.create({
   },
   renderedSingleItemCommercialPageItem: {
     marginVertical: 8,
-    marginHorizontal: 10,
-    paddingHorizontal:5,
+    marginHorizontal: 5,
+    paddingHorizontal:4,
     alignItems: 'center',
-    width: '100%',
+    // width: '100%',
     justifyContent: 'center',
   },
   searchTextContainer: {
@@ -120,13 +128,14 @@ export default StyleSheet.create({
   tabviewContainer: {
     position: 'relative',
     alignSelf: 'stretch',
-    flex: 1,
-    marginHorizontal: 15,
+    textAlign:'center',
+    marginHorizontal: 10,
     // top: 30,
+    height:windowHeight+100,
+    marginBottom:80,
   },
   tabviewSinglePage: {
     flex: 1,
-    backgroundColor: black,
     borderWidth: 1,
     borderTopColor: 'gray',
     width: '100%',

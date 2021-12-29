@@ -13,39 +13,45 @@ import {
   ScrollView,
   Dimensions,
   StyleSheet,
+  StatusBar
 } from 'react-native';
-import SoundPlayer from 'react-native-sound-player';
 import {withBadge, Badge, Avatar} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import styles from '../cssFolder/cssHome';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
-import imgFrame from '../assits/image_frame.png';
 const {width, height} = Dimensions.get('window');
-// import SlidingPanel from 'react-native-sliding-up-down-panels';
-import SlidingPanel from './Panel';
+import SlidingPanel from './SliderPanel';
 import itemArr from './DataFile';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Header as HeaderRNE, HeaderProps} from 'react-native-elements';
 const {UIManager} = NativeModules;
+const black = '#0D0D0D';
 
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
 
 export default function HomeScreen({route, navigation}) {
-  const [variantHeight, setVariantHeight] = useState({h: 70});
+  const [variantHeight, setVariantHeight] = useState({h: 0});
   const [displayFlag, setdisplayFlag] = useState('none');
   const [searchFlag, setsearchFlag] = useState(false);
-  const [sngName, setsngName] = useState(itemArr[0].name);
-  const [songUri, setsongUri] = useState(itemArr[0].uri);
-  const [songPrice, setsongPrice] = useState(itemArr[0].price);
-  const [songSinger, setsongSinger] = useState(itemArr[0].singer)
+  const [sngDetail, setsngDetail] = useState({
+    tname:itemArr[0].name,
+    tsinger: itemArr[0].singer,
+    tprice: itemArr[0].price,
+    turi: itemArr[0].uri,
+  });
+  const [mainUIHeight, setmainUIHeight] = useState(0);
+  const [panelVisible, setpanelVisible] = useState(true);
+  const childRef = useRef();
 
   const FirstRoute = () => (
     <View style={styles.tabviewSinglePage}>
-      <View>
-        <ScrollView>
-          <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
+      <View style={styles.all}>
+        <ScrollView nestedScrollEnabled={true}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap'}}>
             {itemArr.map((item, index) => (
-              <View key={index}>
+              <View key={index} style={{ width:'50%'}}>
                 <TouchableOpacity onPress={() => SelectSong(item) }>
                   <SingleLineItems attrname={item.name} attruri={item.uri} />
                 </TouchableOpacity>
@@ -83,23 +89,27 @@ export default function HomeScreen({route, navigation}) {
   );
 
   function SelectSong(item) {
-    setsngName(item.name);
-    setsongUri(item.uri);
-    setsongPrice(item.price);
-    setsongSinger(item.singer)
+    setpanelVisible(true);
+    sngDetail.tname = item.name,
+    sngDetail.tprice = item.price,
+    sngDetail.tsinger = item.singer,
+    sngDetail.turi = item.uri,
+    childRef.current.updatingFunction(sngDetail.tname, sngDetail.tsinger, sngDetail.tprice, sngDetail.turi);
   }
 
   function searchIconClick() {
     // Animate the update
-    LayoutAnimation.spring();
+    // LayoutAnimation.spring();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (!searchFlag) {
       setVariantHeight({h: variantHeight.h + 200});
       setdisplayFlag('flex');
       setsearchFlag(true);
+      
     } else if (searchFlag) {
       setVariantHeight({h: variantHeight.h - 200});
       setdisplayFlag('none');
-      setsearchFlag(false);
+      setsearchFlag(false);      
     }
   }
 
@@ -139,100 +149,108 @@ export default function HomeScreen({route, navigation}) {
   };
 
   return (
-    <View style={styles.all}>
-      <View style={[styles.box, {height: variantHeight.h}]}>
-        <View style={styles.iconAligner}>
+    <SafeAreaView style={styles.all}>
+      <StatusBar hidden={true} />
+      <HeaderRNE
+        backgroundColor={black}
+        containerStyle={{ borderBottomColor:black,borderBottomWidth:1 }}
+        leftComponent={
           <View>
-            <TouchableWithoutFeedback onPress={() => console.log('')}>
-              <Icon
-                name="microsoft-bing"
-                size={40}
-                style={styles.iconColorGolden}
-              />
-            </TouchableWithoutFeedback>
+            <TouchableOpacity>
+            <Icon name="microsoft-bing" size={40} style={styles.iconColorGolden} />
+            </TouchableOpacity>
           </View>
-          <View style={styles.nestedIconAligner}>
-            <TouchableWithoutFeedback onPress={() => searchIconClick()}>
+        }
+        rightComponent={
+            <View style={styles.headerRight}>
+              <TouchableOpacity onPress={() => searchIconClick()}>
               <Icon
-                name="magnify"
-                size={35}
-                style={[{marginTop: 5, marginRight: 10}, styles.iconColorWhite]}
-              />
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={() => console.log('')}>
+                  name="magnify"
+                  size={35}
+                  style={[{marginTop: 5, marginRight: 10}, styles.iconColorWhite]}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => console.log('')} >
+                <Icon
+                    name="cart-outline"
+                    size={30}
+                    style={[{margin: 5}, styles.iconColorWhite]}
+                  />
+                  <Badge
+                    status=""
+                    containerStyle={styles.cartIconBadgeStyle}
+                    badgeStyle={styles.cartIconBadgeStyle}
+                    textStyle={{ color:black}}
+                    value="1"
+                  />
+              </TouchableOpacity>
+            </View>
+        }
+      />
+      <ScrollView contentContainerStyle={styles.scrollView}>
+      <View style={styles.all} >
+        <View style={[styles.box, {height: variantHeight.h}]}>
+          <View style={styles.searchTextContainer}>
+            <Text style={[styles.textMedium, {display: displayFlag}]}>
+              Find The best music for your banger
+            </Text>
+
+            <View style={[styles.searchContainer, {display: displayFlag}]}>
               <View>
                 <Icon
-                  name="cart-outline"
+                  name="magnify"
                   size={30}
-                  style={[{margin: 5}, styles.iconColorWhite]}
-                />
-                <Badge
-                  status=""
-                  containerStyle={styles.cartIconBadgeStyle}
-                  value="1"
+                  color="#fff"
+                  style={{marginTop: 10, paddingLeft: 15, position: 'relative'}}
                 />
               </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </View>
-        <View style={styles.searchTextContainer}>
-          <Text style={[styles.textMedium, {display: displayFlag}]}>
-            Find The best music for your banger
-          </Text>
-
-          <View style={[styles.searchContainer, {display: displayFlag}]}>
-            <View>
-              <Icon
-                name="magnify"
-                size={30}
-                color="#fff"
-                style={{marginTop: 10, paddingLeft: 15, position: 'relative'}}
-              />
-            </View>
-            <View>
-              <TextInput
-                style={{
-                  fontSize: 20,
-                  color: '#fff',
-                  position: 'relative',
-                  width: 250,
-                }}
-                placeholder="Search"
-                color="#fff"
-                placeholderTextColor="#fff"
-              />
+              <View>
+                <TextInput
+                  style={{
+                    fontSize: 20,
+                    color: '#fff',
+                    position: 'relative',
+                    width: 250,
+                  }}
+                  placeholder="Search"
+                  color="#fff"
+                  placeholderTextColor="#fff"
+                />
+              </View>
             </View>
           </View>
         </View>
+
+          <View style={styles.tabviewContainer} >
+            <TabViewRender  />
+
+          </View>
+
+
       </View>
-
-      <View style={styles.tabviewContainer}>
-        <TabViewRender />
-      </View>
-
-
-      <SlidingPanel nav={navigation} songname={sngName} singername={songSinger} pricedetails={songPrice} songUriDetails={songUri}/>
-    </View>
+      </ScrollView>
+      { panelVisible ? <SlidingPanel ref={childRef} nav={navigation} /> : null}
+    </SafeAreaView>
   );
 }
 
-function useInterval(callback, delay) {
-  const savedCallback = useRef();
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-  // Set up the interval.
-  useEffect(() => {
-    function tick() {
-      savedCallback.current();
-    }
-    if (delay !== null) {
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-}
+// function useInterval(callback, delay) {
+//   const savedCallback = useRef();
+//   // Remember the latest callback.
+//   useEffect(() => {
+//     savedCallback.current = callback;
+//   }, [callback]);
+//   // Set up the interval.
+//   useEffect(() => {
+//     function tick() {
+//       savedCallback.current();
+//     }
+//     if (delay !== null) {
+//       let id = setInterval(tick, delay);
+//       return () => clearInterval(id);
+//     }
+//   }, [delay]);
+// }
 
 const gray = '#252525';
 const styler = StyleSheet.create({
