@@ -14,6 +14,16 @@ export default StyleSheet.create({
     flex: 1,
     width: '100%',
   },
+  dragLine:{
+    height:5,
+    width:"100%",
+    alignItems:'center'
+  },
+  insideDragLine:{
+    width:"20%",
+    height:5,
+    backgroundColor:white,
+  },
   progressBar: {
     height: 5,
     width: '89%',

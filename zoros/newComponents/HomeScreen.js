@@ -13,7 +13,9 @@ import {
   ScrollView,
   Dimensions,
   StyleSheet,
-  StatusBar
+  StatusBar,
+  PermissionsAndroid,
+  NativeAppEventEmitter
 } from 'react-native';
 import {withBadge, Badge, Avatar} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
@@ -24,6 +26,7 @@ import SlidingPanel from './SliderPanel';
 import itemArr from './DataFile';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header as HeaderRNE, HeaderProps} from 'react-native-elements';
+
 const {UIManager} = NativeModules;
 const black = '#0D0D0D';
 
@@ -41,9 +44,9 @@ export default function HomeScreen({route, navigation}) {
     tprice: itemArr[0].price,
     turi: itemArr[0].uri,
   });
-  const [mainUIHeight, setmainUIHeight] = useState(0);
   const [panelVisible, setpanelVisible] = useState(true);
   const childRef = useRef();
+
 
   const FirstRoute = () => (
     <View style={styles.tabviewSinglePage}>
@@ -55,7 +58,7 @@ export default function HomeScreen({route, navigation}) {
                 <TouchableOpacity onPress={() => SelectSong(item) }>
                   <SingleLineItems attrname={item.name} attruri={item.uri} />
                 </TouchableOpacity>
-              </View>
+              </View> 
             ))}
           </View>
         </ScrollView>
@@ -89,6 +92,7 @@ export default function HomeScreen({route, navigation}) {
   );
 
   function SelectSong(item) {
+    
     setpanelVisible(true);
     sngDetail.tname = item.name,
     sngDetail.tprice = item.price,
@@ -99,7 +103,6 @@ export default function HomeScreen({route, navigation}) {
 
   function searchIconClick() {
     // Animate the update
-    // LayoutAnimation.spring();
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (!searchFlag) {
       setVariantHeight({h: variantHeight.h + 200});

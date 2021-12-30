@@ -8,6 +8,7 @@ import {
   Image,
   Animated,
   TouchableOpacity,
+  LayoutAnimation,
 } from 'react-native';
 const {width, height} = Dimensions.get('window');
 import SlidingPanel from 'react-native-sliding-up-down-panels';
@@ -34,7 +35,7 @@ const SliderPanel = forwardRef((props, ref) => {
     const [singername, setsingername] = useState(itemArr[0].singer);
     const [price, setprice] = useState(itemArr[0].price);
     const [picuri, setpicuri] = useState(itemArr[0].uri);
-    var panelHeight;
+    const [panelHeight, setpanelHeight] = useState(0);
 
     useEffect(() => {
         console.log("panel got rerender.");
@@ -99,38 +100,39 @@ const SliderPanel = forwardRef((props, ref) => {
     }
 
     function panelChangesWhenOpen(){
-        setradiusLenght(0);
-        setswipeUpDownFlag(false);
-        setheaderDisplayStatus('flex');
-        setpanelLayoutDisplayStatus('none');
         // setpanelPosition('bottom');
         navigation.setOptions({
             tabBarVisible: true,
         });
+        setradiusLenght(0);
+        setswipeUpDownFlag(false);
+        setheaderDisplayStatus('flex');
+        setpanelLayoutDisplayStatus('none');
     }
-
+    
     function panelChangesWhenClose(){
+        navigation.setOptions({
+            tabBarVisible: false,
+        });
         setradiusLenght(50);
         setswipeUpDownFlag(true);
         setheaderDisplayStatus('none');
         setpanelLayoutDisplayStatus('flex');
-        navigation.setOptions({
-            tabBarVisible: false,
-        });
     }
 
     const animationStart = () => {
-        console.log("Panel Lenght:", panelHeight);
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        // console.log("Panel height when animation start is:", panelHeight);
         //const {navigation} = this.props;
-        if (!swipeUpDownFlag) {
+        if (!swipeUpDownFlag && panelHeight < 20) {
             panelChangesWhenClose();
-        } else if (swipeUpDownFlag) {
+        } else if (swipeUpDownFlag && panelHeight < 20) {
             panelChangesWhenOpen();
         }
     }
 
     const getPanelHeight = (height) => {
-        panelHeight = height;
+        setpanelHeight(height);
     }
 
     function checkCurrentPanelLenght(){
@@ -146,7 +148,20 @@ const SliderPanel = forwardRef((props, ref) => {
                 panelChangesWhenOpen();
             }
         }
-        console.log("panel length outside:",panelHeight);
+        console.log("Panel:",panelHeight);
+    }
+
+    function animationStop(){
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        // console.log("panel height when animation stop is:", panelHeight);
+        if (panelHeight > 1) {
+            // console.log('panel open.');
+            panelChangesWhenClose();            
+        }
+        else{
+            // console.log('panel closed.');
+            panelChangesWhenOpen();
+        }
     }
 
     return (
@@ -155,10 +170,19 @@ const SliderPanel = forwardRef((props, ref) => {
                 AnimationSpeed={500}
                 allowDragging={true}
                 headerLayoutHeight={panelHeaderHeight}
-                onAnimationStart={() => animationStart()}
-                onDragStart={() => checkCurrentPanelLenght()}
-                onDragStop={() => checkCurrentPanelLenght()}
-                onAnimationStop={() => checkCurrentPanelLenght()}
+                onAnimationStart={() =>{
+                    // console.log("animation start."); 
+                    animationStart(); 
+                }}
+                // onDragStart={() => checkCurrentPanelLenght()}
+                onDragStop={() => {
+                    // console.log("drag stop.");
+                    checkCurrentPanelLenght();
+                }}
+                onAnimationStop={() => { 
+                    // console.log('animation stop.');
+                    animationStop();
+                }}
                 getHeightFunction={getPanelHeight}
                 headerLayout={() => (
                 <View
@@ -169,6 +193,7 @@ const SliderPanel = forwardRef((props, ref) => {
                         borderTopRightRadius: radiusLenght,
                     },
                     ]}>
+                        <View style={[styles.dragLine, {display: (headerDisplayStatus == 'flex') ? 'none' : 'flex'}]}><View style={styles.insideDragLine}></View></View>
                     <View
                     style={[
                         styles.flexDirectionRow,

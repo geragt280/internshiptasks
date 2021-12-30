@@ -1,0 +1,14 @@
+D:\Demo Projects\internshiptasks\zoros\node_modules\react-native-sliding-up-down-panels
+
+goto Line 149 and paste
+
+
+              this.props.getHeightFunction(sliderPosition);
+              console.log("Pan release.",sliderPosition);
+
+
+goto Line 75 and paste
+
+
+        console.log('Pan start',sliderPosition);
+        this.props.getHeightFunction(sliderPosition);
