@@ -19,7 +19,8 @@
     "react-native-elements": "^3.4.2",
     "react-native-fbsdk": "^3.0.0",
     "react-native-gesture-handler": "^1.10.3",
-    "react-native-music-files": "^1.0.7",
+    "react-native-marquee": "^0.3.2",
+    "react-native-media-meta": "0.0.11",
     "react-native-pager-view": "^5.2.1",
     "react-native-permissions": "^3.2.0",
     "react-native-reanimated": "^2.2.0",
@@ -29,7 +30,9 @@
     "react-native-sliding-up-down-panels": "^1.0.0",
     "react-native-sound-player": "^0.11.0",
     "react-native-tab-view": "^3.0.1",
-    "react-native-vector-icons": "^8.1.0"
+    "react-native-track-player": "^2.1.2",
+    "react-native-vector-icons": "^8.1.0",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

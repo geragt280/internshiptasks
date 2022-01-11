@@ -88,6 +88,9 @@ export default StyleSheet.create({
     color: white,
     padding: 2,
     borderRadius: 10,
+    textAlign:"center",
+    width:150,
+    height:30,
     opacity: 1,
     zIndex: 10,
   },
@@ -130,9 +133,10 @@ export default StyleSheet.create({
     alignSelf: 'stretch',
     textAlign:'center',
     marginHorizontal: 10,
+    flex:1
     // top: 30,
-    height:windowHeight+100,
-    marginBottom:80,
+    // height:windowHeight,
+    // marginBottom:80,
   },
   tabviewSinglePage: {
     flex: 1,

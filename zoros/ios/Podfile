@@ -12,6 +12,9 @@ target 'zoros' do
     :hermes_enabled => false
   )
 
+  pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
+
+
   target 'zorosTests' do
     inherit! :complete
     # Pods for testing

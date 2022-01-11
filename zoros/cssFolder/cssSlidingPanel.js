@@ -93,6 +93,7 @@ export default StyleSheet.create({
     top:-70,
   },
   commonTextStyle: {
+    width:180,
     color: 'white',
     fontSize: 18,
     fontWeight:'bold'
@@ -165,6 +166,7 @@ export default StyleSheet.create({
   songNameLargeText: {
     fontSize: 25, 
     color: white,
-    fontWeight:'bold'
+    fontWeight:'bold',
+    width:260,
   },
 });

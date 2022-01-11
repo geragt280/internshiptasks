@@ -14,6 +14,7 @@ import {
   Dimensions,
   StyleSheet,
   StatusBar,
+  ToastAndroid,
   PermissionsAndroid,
   NativeAppEventEmitter
 } from 'react-native';
@@ -23,12 +24,17 @@ import styles from '../cssFolder/cssHome';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 const {width, height} = Dimensions.get('window');
 import SlidingPanel from './SliderPanel';
-import itemArr from './DataFile';
+import DataFile from './DataFile';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header as HeaderRNE, HeaderProps} from 'react-native-elements';
+import {check, PERMISSIONS, RESULTS, request} from 'react-native-permissions';
+import TrackPlayer from 'react-native-track-player';
+import TrackClass from './componentClasses/TrackClass';
+import TrackServiceClass from './componentClasses/TrackServiceClass';
 
 const {UIManager} = NativeModules;
 const black = '#0D0D0D';
+var Track;
 
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -38,25 +44,69 @@ export default function HomeScreen({route, navigation}) {
   const [variantHeight, setVariantHeight] = useState({h: 0});
   const [displayFlag, setdisplayFlag] = useState('none');
   const [searchFlag, setsearchFlag] = useState(false);
-  const [sngDetail, setsngDetail] = useState({
-    tname:itemArr[0].name,
-    tsinger: itemArr[0].singer,
-    tprice: itemArr[0].price,
-    turi: itemArr[0].uri,
-  });
   const [panelVisible, setpanelVisible] = useState(true);
   const childRef = useRef();
+  const [localSongsList, setlocalSongsList] = useState([]);
+  // const firstSongItem = [];
+  // if (localSongsList) {
+  //   firstSongItem.push({
+  //     tname:localSongsList[0].name,
+  //     tsinger: localSongsList[0].singer,
+  //     tprice: localSongsList[0].price,
+  //     turi: localSongsList[0].uri,
+  //   });
+  // }
+  const [sngDetail, setsngDetail] = useState(
+    {
+      tname:"",
+      tsinger: "",
+      tprice: "",
+      turi: "",
+    }
+  );
 
+  useEffect(async () => { 
+    permissionCheck();
+    // await TrackPlayer.registerPlaybackService(() => listnerFunctions());  
+  }, []);
+
+  function listnerFunctions() {
+
+    TrackPlayer.addEventListener('remote-play', () => TrackPlayer.play());
+
+    TrackPlayer.addEventListener('remote-pause', () => TrackPlayer.pause());
+
+    TrackPlayer.addEventListener('remote-stop', () => TrackPlayer.stop());
+
+    TrackPlayer.addEventListener('remote-next', () => TrackPlayer.skipToNext());
+
+    TrackPlayer.addEventListener('remote-previous', () => TrackPlayer.skipToPrevious());    
+};
+
+  function permissionCheck(){
+    request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE).then(async (result) => {
+      // … 
+      await TrackPlayer.setupPlayer({});
+      console.log('The permission is granted');
+      await DataFile(async (itemArr) => {
+        ToastAndroid.show("Items found are " + itemArr.length, ToastAndroid.LONG);
+        setlocalSongsList(itemArr);
+        Track = new TrackClass(itemArr);
+        await Track.Collect_all();
+      });
+    });
+
+  }
 
   const FirstRoute = () => (
     <View style={styles.tabviewSinglePage}>
       <View style={styles.all}>
         <ScrollView nestedScrollEnabled={true}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap'}}>
-            {itemArr.map((item, index) => (
+            {localSongsList.map((item, index) => (
               <View key={index} style={{ width:'50%'}}>
                 <TouchableOpacity onPress={() => SelectSong(item) }>
-                  <SingleLineItems attrname={item.name} attruri={item.uri} />
+                  <SingleLineItems attrname={item.name} attruri={item.uri} thumb={item.thumb} />
                 </TouchableOpacity>
               </View> 
             ))}
@@ -66,12 +116,17 @@ export default function HomeScreen({route, navigation}) {
     </View>
   );
 
-  const SingleLineItems = ({attrname, attruri, key}) => {
+  const SingleLineItems = ({attrname, attruri, key, thumb}) => {
+    // console.log("singlelineitem.",attrname, attruri, thumb);
+    var imageSource = attruri;
+    if (thumb) {
+      imageSource = thumb;
+    }
     return (
       <View style={styles.renderedSingleItemCommercialPageItem}>
         <Image
           style={styles.renderedItemImageStyling}
-          source={{uri: attruri}}
+          source={{uri: imageSource}}
           width={150}
           height={150}></Image>
         <Text style={styles.renderedItemTextOnImage}>{attrname}</Text>
@@ -91,14 +146,21 @@ export default function HomeScreen({route, navigation}) {
     </View>
   );
 
-  function SelectSong(item) {
-    
+  async function SelectSong(item) {
+    var imageSource = item.uri;
+    if (item.thumb) {
+      console.log('thumbnail setted.');
+      imageSource = item.thumb;
+    }
     setpanelVisible(true);
-    sngDetail.tname = item.name,
-    sngDetail.tprice = item.price,
-    sngDetail.tsinger = item.singer,
-    sngDetail.turi = item.uri,
-    childRef.current.updatingFunction(sngDetail.tname, sngDetail.tsinger, sngDetail.tprice, sngDetail.turi);
+    sngDetail.tname = item.name;
+    sngDetail.tprice = item.price;
+    sngDetail.tsinger = item.singer;
+    sngDetail.turi = imageSource;
+    const path = item.songPath;
+    let trackIndex = await Track.playSong(sngDetail.tname);
+    console.log("track index:", trackIndex);
+    childRef.current.updatingFunction(sngDetail.tname, sngDetail.tsinger, sngDetail.tprice, sngDetail.turi, path, 'mp3');
   }
 
   function searchIconClick() {
@@ -159,7 +221,7 @@ export default function HomeScreen({route, navigation}) {
         containerStyle={{ borderBottomColor:black,borderBottomWidth:1 }}
         leftComponent={
           <View>
-            <TouchableOpacity>
+            <TouchableOpacity >
             <Icon name="microsoft-bing" size={40} style={styles.iconColorGolden} />
             </TouchableOpacity>
           </View>
@@ -224,7 +286,7 @@ export default function HomeScreen({route, navigation}) {
           </View>
         </View>
 
-          <View style={styles.tabviewContainer} >
+          <View style={[styles.tabviewContainer, (localSongsList.length > 6) ? {marginBottom:80} : console.log(false)]} >
             <TabViewRender  />
 
           </View>
@@ -236,24 +298,6 @@ export default function HomeScreen({route, navigation}) {
     </SafeAreaView>
   );
 }
-
-// function useInterval(callback, delay) {
-//   const savedCallback = useRef();
-//   // Remember the latest callback.
-//   useEffect(() => {
-//     savedCallback.current = callback;
-//   }, [callback]);
-//   // Set up the interval.
-//   useEffect(() => {
-//     function tick() {
-//       savedCallback.current();
-//     }
-//     if (delay !== null) {
-//       let id = setInterval(tick, delay);
-//       return () => clearInterval(id);
-//     }
-//   }, [delay]);
-// }
 
 const gray = '#252525';
 const styler = StyleSheet.create({

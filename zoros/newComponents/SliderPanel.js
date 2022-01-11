@@ -12,11 +12,13 @@ import {
 } from 'react-native';
 const {width, height} = Dimensions.get('window');
 import SlidingPanel from 'react-native-sliding-up-down-panels';
-import itemArr from './DataFile';
+// import DataFile from './DataFile';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 import imgFrame from '../assits/image_frame.png';
 import SoundPlayer from 'react-native-sound-player';
 import { useNavigation } from '@react-navigation/native';
+import MarqueeText from 'react-native-marquee';
+import TrackPlayer from 'react-native-track-player';
 
 // https://github.com/cinder92/react-native-get-music-files
 
@@ -25,61 +27,91 @@ const SliderPanel = forwardRef((props, ref) => {
     const [playButtonFlag, setplayButtonFlag] = useState('play-circle');
     const [smallPlayButtonFlag, setsmallPlayButtonFlag] = useState('play');
     const [musicPlayStatus, setmusicPlayStatus] = useState(false);
+    const [songPlayingStatus, setsongPlayingStatus] = useState(false);
     const [swipeUpDownFlag, setswipeUpDownFlag] = useState(false);
     const [radiusLenght, setradiusLenght] = useState(0);
     const [headerDisplayStatus, setheaderDisplayStatus] = useState('flex');
     const [panelLayoutDisplayStatus, setpanelLayoutDisplayStatus] = useState("none");
     const [songSelectedFlag, setsongSelectedFlag] = useState(false);
     const [panelHeaderHeight, setpanelHeaderHeight] = useState(160);
-    const [songname, setsongname] = useState(itemArr[0].name);
-    const [singername, setsingername] = useState(itemArr[0].singer);
-    const [price, setprice] = useState(itemArr[0].price);
-    const [picuri, setpicuri] = useState(itemArr[0].uri);
+    const [songname, setsongname] = useState("");
+    const [singername, setsingername] = useState("");
+    const [price, setprice] = useState("");
+    const [picuri, setpicuri] = useState("https://w7.pngwing.com/pngs/784/399/png-transparent-computer-software-windows-nt-windows-xp-unknown-person-face-monochrome-computer-wallpaper.png");
     const [panelHeight, setpanelHeight] = useState(0);
+    var Track;
 
     useEffect(() => {
         console.log("panel got rerender.");
-    }, [])
-
-    // const updatingFunction = () =>{
-    //     console.log("component loaded slider.",props.songname, props.singername);
-    //     setsongname(props.songname);
-    //     setsingername(props.singername);
-    //     setprice(props.pricedetails);
-    //     setpicuri(props.songUriDetails);
-        
-    // }
+        ClosePlayer();
+    }, []);
 
     useImperativeHandle(ref, () => ({
-        updatingFunction(name,singer,price,uri){
+        updatingFunction(name,singer,price,uri,songPath,songType){
             // console.log("component loaded slider.",name, price);
+            if (musicPlayStatus && songname != name) {
+                stopMusic();
+            }
             setsongname(name);
             setsingername(singer);
             setprice(price);
             setpicuri(uri);   
             
             OpenPlayer();
+            console.log("song path:", songPath);
+            var millisecondsToWait = 500;
+            const timer = setTimeout(() => {
+                console.log('Timeout called!');
+                playandpause(songPath,songType);
+            }, millisecondsToWait);
+            // return () => clearTimeout(timer);
         }
     
     }));
 
+    function stopMusic(){
+        console.log('song stopped.')
+        // SoundPlayer.stop();
+        TrackPlayer.stop();
+        setmusicPlayStatus(false);
+        setsongPlayingStatus(false);
+        setplayButtonFlag('play-circle');
+        setsmallPlayButtonFlag('play');
+    }
 
-    const playandpause = () => {
+    function MusicPause(){
+        TrackPlayer.pause();
+        console.log('pause music');           
+        setplayButtonFlag('play-circle');
+        setsmallPlayButtonFlag('play');
+        setsongPlayingStatus(false);
+    }
+
+    function MusicPlay(){
+        TrackPlayer.play();
+        console.log('play music');           
+        setplayButtonFlag('pause-circle');
+        setsmallPlayButtonFlag('pause');
+        setsongPlayingStatus(true);
+    }
+
+    const playandpause = (musicpath, type) => {
         try {
             // play the file tone.mp3
             if (!musicPlayStatus) {
-              SoundPlayer.playSoundFile('balam_pichkari', 'mp3');
-              console.log('me chala');
-              //setplayButtonFlag('pause');
+            //   SoundPlayer.playUrl(musicpath);
+              console.log('start music');
               setplayButtonFlag('pause-circle');
               setsmallPlayButtonFlag('pause');
               setmusicPlayStatus(true);
-            } else if (musicPlayStatus) {
-              SoundPlayer.pause();
-              console.log('me bhi chala');           
-              setplayButtonFlag('play-circle');
-              setsmallPlayButtonFlag('play');
-              setmusicPlayStatus(false);
+              setsongPlayingStatus(true);
+            } else if (musicPlayStatus && songPlayingStatus) {
+            //   SoundPlayer.pause();
+                MusicPause();
+            }
+            else if (musicPlayStatus && !songPlayingStatus) {
+                // SoundPlayer.play();
+                MusicPlay();
             }
           } catch (e) {
             console.log(`cannot play the sound file`, e);
@@ -88,14 +120,14 @@ const SliderPanel = forwardRef((props, ref) => {
 
     const OpenPlayer = () => {
             setpanelHeaderHeight(160);
-            setheaderDisplayStatus('flex');
-          
+            setheaderDisplayStatus('flex');     
     }
 
     const ClosePlayer = () => {
         if (!songSelectedFlag) {
             setpanelHeaderHeight(100);
             setheaderDisplayStatus('none');
+            stopMusic();
           }
     }
 
@@ -167,7 +199,7 @@ const SliderPanel = forwardRef((props, ref) => {
     return (
         <View>
             <SlidingPanel
-                AnimationSpeed={500}
+                AnimationSpeed={700}
                 allowDragging={true}
                 headerLayoutHeight={panelHeaderHeight}
                 onAnimationStart={() =>{
@@ -207,13 +239,27 @@ const SliderPanel = forwardRef((props, ref) => {
                         />
                     </View>
                     <View style={{paddingHorizontal: 10}}>
-                        <Text style={styles.commonTextStyle}>
-                        {songname}
-                        </Text>
-                        <View style={styles.flexDirectionRow}>
-                        <Text style={styles.textColorGray}>
-                            {singername}
-                        </Text>
+                        <MarqueeText
+                        style={styles.commonTextStyle}
+                        duration={10000}
+                        marqueeOnStart
+                        loop
+                        marqueeDelay={2000}
+                        marqueeResetDelay={2000}
+                        >
+                            {songname}
+                        </MarqueeText>
+                        <View style={[styles.flexDirectionRow, {width:140}]}>
+                            <MarqueeText
+                            style={styles.textColorGray}
+                            duration={5000}
+                            marqueeOnStart
+                            loop
+                            marqueeDelay={1000}
+                            marqueeResetDelay={2000}
+                            >
+                                {singername}
+                            </MarqueeText>
                         <Text style={[styles.textColorWhite]}>
                             {' '}
                             ${price}
@@ -268,13 +314,27 @@ const SliderPanel = forwardRef((props, ref) => {
                     ]}>
                     <View style={styles.songsDetailStyle}>
                         <View>
-                        <Text style={styles.songNameLargeText}>
-                            {songname}
-                        </Text>
-                        <View style={styles.flexDirectionRow}>
-                            <Text style={styles.textColorGray}>
-                            {singername}
-                            </Text>
+                            <MarqueeText
+                            style={styles.songNameLargeText}
+                            duration={15000}
+                            marqueeOnStart
+                            loop
+                            marqueeDelay={1000}
+                            marqueeResetDelay={2000}
+                            >
+                                {songname}
+                            </MarqueeText>
+                        <View style={[styles.flexDirectionRow,{width:240}]}>
+                            <MarqueeText
+                            style={styles.textColorGray}
+                            duration={15000}
+                            marqueeOnStart
+                            loop
+                            marqueeDelay={1000}
+                            marqueeResetDelay={2000}
+                            >
+                                {singername}
+                            </MarqueeText>
                             <Text style={styles.textColorWhiteBold}>
                             ${price}
                             </Text>
